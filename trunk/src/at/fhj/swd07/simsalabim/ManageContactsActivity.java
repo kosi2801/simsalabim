@@ -28,8 +28,6 @@ public class ManageContactsActivity extends TabActivity {
     
     private SimUtil simUtil;
     
-    private String CONTACT_SIM_URI = "content://icc/adn"; // URI for SIM card is different on Android 1.5 and 1.6, will be detected upon load of class
-    
     /** Enum class for action id's in the menus */
     protected enum ContactActions {
         DELETE_SIM_CONTACT,
@@ -43,7 +41,6 @@ public class ManageContactsActivity extends TabActivity {
         
         simUtil = new SimUtil(getContentResolver());
         
-        CONTACT_SIM_URI = detectSimUri();
         setContentView(R.layout.main);
 
         // initialize access variables
@@ -67,8 +64,6 @@ public class ManageContactsActivity extends TabActivity {
         
         // holds the contact on which the context menu was called 
         Contact contexedContact;
-
-        Uri simUri = Uri.parse(CONTACT_SIM_URI);
         ContentResolver resolver = getContentResolver();
         
         /* Switch on the ID of the item, to get what the user selected. */
@@ -83,18 +78,13 @@ public class ManageContactsActivity extends TabActivity {
                  // check, if already present on SIM
                  if(simContacts.contains(newSimContact)) {
                      Toast.makeText(ManageContactsActivity.this, "Already on SIM!", Toast.LENGTH_SHORT).show();
-                     
                      return true; // true means, event has been handled
                  }
                  
-                 // add it on the SIM card
-                 ContentValues newSimValues = new ContentValues();
-                 newSimValues.put("tag", contexedContact.getSimName());
-                 newSimValues.put("number", contexedContact.number);
-                 Uri newSimRow = resolver.insert(simUri, newSimValues);
+                 // create contact on SIM card
+                 Uri newSimRow = simUtil.createContact(newSimContact);
                  
-                 // TODO: further row values: "AdnFull", "/adn/0"
-                 // TODO: null could also mean that the contact name was too long?
+                 // output feedback
                  if (newSimRow == null) {
                      Toast.makeText(ManageContactsActivity.this, "Error storing on SIM!", Toast.LENGTH_SHORT).show();
                      return true; // true means, event has been handled
@@ -158,19 +148,14 @@ public class ManageContactsActivity extends TabActivity {
                  
                  // make "Are you sure?"-Dialog handler
                  class DeleteHandler implements DialogInterface.OnClickListener {
-                     private ContentResolver res;
-                     private Uri uri;
                      private Contact contact;
-                     public DeleteHandler(ContentResolver resolver, Uri uri, Contact contact) {
-                         this.res = resolver;
-                         this.uri = uri;
+                     public DeleteHandler(Contact contact) {
                          this.contact = contact;
                     }
                      
                      @Override
                     public void onClick(DialogInterface dialog, int which) {
-                         // delete from SIM card
-                         int count = res.delete(uri, "tag='"+contact.name+"' AND number='"+contact.number+"'", null);
+                         int count = simUtil.deleteContact(contact);
                          
                          // TODO: what to do when more than 1 match? 
                          if(count != 1) {
@@ -188,7 +173,7 @@ public class ManageContactsActivity extends TabActivity {
                  // and display the dialog
                  new AlertDialog.Builder(this) //
                  .setMessage("Are you sure?") //
-                 .setPositiveButton("Yes!", new DeleteHandler(resolver, simUri, contexedContact)) //
+                 .setPositiveButton("Yes!", new DeleteHandler(contexedContact)) //
                  .setNegativeButton("No!", null) //
                  .show();
                  
@@ -272,10 +257,6 @@ public class ManageContactsActivity extends TabActivity {
     }
 
     private ArrayList<Contact> retrievePhoneContacts() {
-        // ContentValues values = new ContentValues();
-        // values.put("tag", "Jenny Huang");
-        // values.put("number", "1234567");
-
         // get these columns from the content provider
         final String[] phoneProjection  = new String[] { //
                 android.provider.Contacts.PeopleColumns.NAME, //
@@ -301,26 +282,5 @@ public class ManageContactsActivity extends TabActivity {
             phoneContacts.add(phoneContact);
         }
         return phoneContacts;
-    }
-    
-    private String detectSimUri() {
-        
-        Uri uri15 = Uri.parse("content://sim/adn/"); // URI of Sim card on Android 1.5
-//        Uri uri16 = Uri.parse("content://icc/adn/"); // URI of Sim card on Android 1.6
-        
-        // resolve something from Sim card
-        ContentResolver resolver = getContentResolver();
-        Cursor results = resolver.query( 
-                uri15,                   
-                new String[]{android.provider.BaseColumns._ID},
-                null, null, null);
-        
-        // if null, we can use the 1.6 URI, otherwise we're on 1.5
-        if(null == results) {
-            return "content://icc/adn";
-        } else {
-            return "content://sim/adn";
-        }
-    }
-    
+    }        
 }
