@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Global Strings -->
+    <string name="app_name">SIMsalabim</string>
+    
+    <!-- Strings for the Contact Manager -->
+    <string name="phone_tab_title">Phone</string>
+    <string name="sim_tab_title">Sim Card</string>
+</resources>
