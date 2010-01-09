@@ -33,6 +33,7 @@
     <string name="error_phone_contact_already_present">Already on Phone!</string>
     <string name="error_phone_contact_not_stored">Error storing contact on Phone!</string>
     <string name="error_phone_number_not_stored">Error adding number to contact on Phone!</string>
+    <string name="error_phone_number_error">Unknown error while adding number to contact on Phone!</string>
     
     
 </resources>

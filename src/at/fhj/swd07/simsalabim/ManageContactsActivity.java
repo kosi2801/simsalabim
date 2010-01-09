@@ -3,11 +3,9 @@ package at.fhj.swd07.simsalabim;
 import java.util.ArrayList;
 
 import android.app.*;
-import android.content.*;
-import android.database.Cursor;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Contacts;
 import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
@@ -27,6 +25,7 @@ public class ManageContactsActivity extends TabActivity {
     private ArrayList<Contact> simContacts;
     
     private SimUtil simUtil;
+    private PhoneUtil phoneUtil;
     
     /** Enum class for action id's in the menus */
     protected enum ContactActions {
@@ -40,6 +39,7 @@ public class ManageContactsActivity extends TabActivity {
         super.onCreate(savedInstanceState);
         
         simUtil = new SimUtil(getContentResolver());
+        phoneUtil = new PhoneUtil(getContentResolver());
         
         setContentView(R.layout.main);
 
@@ -83,7 +83,6 @@ public class ManageContactsActivity extends TabActivity {
         
         // holds the contact on which the context menu was called 
         Contact contexedContact;
-        ContentResolver resolver = getContentResolver();
         
         // at first, check if a context menu was selected...
         /* Switch on the ID of the item, to get what the user selected. */
@@ -115,7 +114,7 @@ public class ManageContactsActivity extends TabActivity {
                  // TODO: reload contact from sim to get really stored info and add to simContacts list
                   
                  // add it to the simContacts list
-                 simContacts.add(contexedContact);
+                 simContacts.add(0, contexedContact);
 
                  refreshListViews();
                  return true; // true means, event has been handled
@@ -128,37 +127,37 @@ public class ManageContactsActivity extends TabActivity {
                  
                  // check, if already present on SIM
                  if(phoneContacts.contains(newPhoneContact)) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_already_present), Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_already_present), Toast.LENGTH_LONG).show();
                      
                      return true; // true means, event has been handled
                  }
+
+                 // create contact on phone
+                 Uri newContactUri = phoneUtil.createContact(contexedContact);
                  
-                 // first, we have to create the contact
-                 ContentValues newPhoneValues = new ContentValues();
-                 newPhoneValues.put(Contacts.People.NAME, contexedContact.name);
-                 Uri newPhoneRow = resolver.insert(Contacts.People.CONTENT_URI, newPhoneValues);
-                 
+                 // if NULL returned, the contact could not be created
                  if(newPhoneContact == null) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_not_stored), Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_not_stored), Toast.LENGTH_LONG).show();
                      return true; // true means, event has been handled
                  }
                  
-                 // then we have to add a number
-                 newPhoneValues.clear();
-                 newPhoneValues.put(Contacts.People.Phones.TYPE, Contacts.People.Phones.TYPE_MOBILE);
-                 newPhoneValues.put(Contacts.Phones.NUMBER, contexedContact.number);
-                 // insert the new phone number in the database using the returned uri from creating the contact
-                 newPhoneRow = resolver.insert(Uri.withAppendedPath(newPhoneRow, Contacts.People.Phones.CONTENT_DIRECTORY), newPhoneValues);
-                 
-                 if (newPhoneRow == null) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_not_stored), Toast.LENGTH_SHORT).show();
+                 // if contacts uri returned, there was an error with adding the number
+                 if(newContactUri.getPath().contains("people")) {
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_not_stored), Toast.LENGTH_LONG).show();
                      return true; // true means, event has been handled
+                 }
+                 
+                 // if phone uri returned, everything went OK
+                 if(newContactUri.getPath().contains("phones")) {
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_phone_contact_number_stored) + " " + newContactUri.toString(), Toast.LENGTH_SHORT).show();
                  } else {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_phone_contact_number_stored) + " " + newPhoneRow.toString(), Toast.LENGTH_SHORT).show();
+                     // some unknown error has happened
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_error) + " " + newContactUri.toString(), Toast.LENGTH_LONG).show();
+                     return true; // true means, event has been handled
                  }
                   
                  // finally add it to the phoneContacts list
-                 phoneContacts.add(contexedContact);
+                 phoneContacts.add(0, contexedContact);
 
                  refreshListViews();
                  return true; /* true means: "we handled the event". */
@@ -220,7 +219,7 @@ public class ManageContactsActivity extends TabActivity {
 
     private void initListViews() {
         // retrieve data for display
-        phoneContacts = retrievePhoneContacts();
+        phoneContacts = phoneUtil.retrievePhoneContacts();
         simContacts = simUtil.retrieveSIMContacts(); 
         
         // set up contents of ListViews
@@ -282,32 +281,4 @@ public class ManageContactsActivity extends TabActivity {
         inflater.inflate(R.menu.options_menu, menu);
         return true;
     }
-    
-    private ArrayList<Contact> retrievePhoneContacts() {
-        // get these columns from the content provider
-        final String[] phoneProjection  = new String[] { //
-                android.provider.Contacts.PeopleColumns.NAME, //
-                android.provider.Contacts.PhonesColumns.NUMBER, //
-                android.provider.BaseColumns._ID };        
-        
-        ContentResolver resolver = getContentResolver();
-        // resolve all phone numbers
-        Cursor results = resolver.query( //
-                Contacts.Phones.CONTENT_URI, // URI of contacts with phone numbers 
-                phoneProjection,             // get above defined columns
-                null, null,                  //
-                android.provider.Contacts.PeopleColumns.NAME); // sort by name
-
-        // create array of Phone contacts and fill it
-        final ArrayList<Contact> phoneContacts = new ArrayList<Contact>(results.getCount());
-        while (results.moveToNext()) {
-            final Contact phoneContact = new Contact(// 
-                results.getString(2), // _id 
-                results.getString(0), // name
-                results.getString(1));// number
-
-            phoneContacts.add(phoneContact);
-        }
-        return phoneContacts;
-    }        
 }
