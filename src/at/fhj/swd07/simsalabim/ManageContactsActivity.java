@@ -59,6 +59,25 @@ public class ManageContactsActivity extends TabActivity {
     }
     
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.about:
+            // and display the dialog
+            new AlertDialog.Builder(this) //
+                    .setCancelable(false) //
+                    .setMessage(getString(R.string.about)) //
+                    .setPositiveButton(getString(R.string.close), null) //
+                    .show();
+            return true;
+        case R.id.quit:
+            this.finish();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    @Override
     public boolean onContextItemSelected(MenuItem aItem) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) aItem.getMenuInfo();
         
@@ -66,6 +85,7 @@ public class ManageContactsActivity extends TabActivity {
         Contact contexedContact;
         ContentResolver resolver = getContentResolver();
         
+        // at first, check if a context menu was selected...
         /* Switch on the ID of the item, to get what the user selected. */
         switch (ContactActions.values()[aItem.getItemId()]) {
              case COPY_PHONE_CONTACT:
@@ -77,7 +97,7 @@ public class ManageContactsActivity extends TabActivity {
                  
                  // check, if already present on SIM
                  if(simContacts.contains(newSimContact)) {
-                     Toast.makeText(ManageContactsActivity.this, "Already on SIM!", Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_already_present), Toast.LENGTH_SHORT).show();
                      return true; // true means, event has been handled
                  }
                  
@@ -86,10 +106,10 @@ public class ManageContactsActivity extends TabActivity {
                  
                  // output feedback
                  if (newSimRow == null) {
-                     Toast.makeText(ManageContactsActivity.this, "Error storing on SIM!", Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_not_stored), Toast.LENGTH_SHORT).show();
                      return true; // true means, event has been handled
                  } else {
-                     Toast.makeText(ManageContactsActivity.this, "Contact stored: " + newSimRow.toString(), Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_stored) + " " + newSimRow.toString(), Toast.LENGTH_SHORT).show();
                  }
                  
                  // TODO: reload contact from sim to get really stored info and add to simContacts list
@@ -108,7 +128,7 @@ public class ManageContactsActivity extends TabActivity {
                  
                  // check, if already present on SIM
                  if(phoneContacts.contains(newPhoneContact)) {
-                     Toast.makeText(ManageContactsActivity.this, "Already on Phone!", Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_already_present), Toast.LENGTH_SHORT).show();
                      
                      return true; // true means, event has been handled
                  }
@@ -119,7 +139,7 @@ public class ManageContactsActivity extends TabActivity {
                  Uri newPhoneRow = resolver.insert(Contacts.People.CONTENT_URI, newPhoneValues);
                  
                  if(newPhoneContact == null) {
-                     Toast.makeText(ManageContactsActivity.this, "Error creating contact on Phone!", Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_not_stored), Toast.LENGTH_SHORT).show();
                      return true; // true means, event has been handled
                  }
                  
@@ -131,10 +151,10 @@ public class ManageContactsActivity extends TabActivity {
                  newPhoneRow = resolver.insert(Uri.withAppendedPath(newPhoneRow, Contacts.People.Phones.CONTENT_DIRECTORY), newPhoneValues);
                  
                  if (newPhoneRow == null) {
-                     Toast.makeText(ManageContactsActivity.this, "Error adding number to contact on Phone!", Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_not_stored), Toast.LENGTH_SHORT).show();
                      return true; // true means, event has been handled
                  } else {
-                     Toast.makeText(ManageContactsActivity.this, "Contact number stored: " + newPhoneRow.toString(), Toast.LENGTH_SHORT).show();
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_phone_contact_number_stored) + " " + newPhoneRow.toString(), Toast.LENGTH_SHORT).show();
                  }
                   
                  // finally add it to the phoneContacts list
@@ -159,9 +179,9 @@ public class ManageContactsActivity extends TabActivity {
                          
                          // TODO: what to do when more than 1 match? 
                          if(count != 1) {
-                             Toast.makeText(ManageContactsActivity.this, count + " contacts removed from SIM! Error!", Toast.LENGTH_SHORT).show();
+                             Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_x_contacts_removed) + " " + count, Toast.LENGTH_SHORT).show();
                          } else {
-                             Toast.makeText(ManageContactsActivity.this, "Contact removed from SIM!", Toast.LENGTH_SHORT).show();
+                             Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_removed), Toast.LENGTH_SHORT).show();
                          }
                          
                          // remove from simContacts if successful
@@ -172,14 +192,15 @@ public class ManageContactsActivity extends TabActivity {
                  
                  // and display the dialog
                  new AlertDialog.Builder(this) //
-                 .setMessage("Are you sure?") //
-                 .setPositiveButton("Yes!", new DeleteHandler(contexedContact)) //
-                 .setNegativeButton("No!", null) //
+                 .setCancelable(false) //
+                 .setMessage(getString(R.string.are_you_sure)) //
+                 .setPositiveButton(getString(R.string.yes), new DeleteHandler(contexedContact)) //
+                 .setNegativeButton(getString(R.string.no), null) //
                  .show();
                  
                  return true;
              default:
-                 return false;
+                 return super.onContextItemSelected(aItem);
         }
     }
     
@@ -210,8 +231,8 @@ public class ManageContactsActivity extends TabActivity {
         phoneView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-                menu.setHeaderTitle("Modify Phone Contact");
-                menu.add(0, ContactActions.COPY_PHONE_CONTACT.ordinal(), 0, "Copy to SIM card");
+                menu.setHeaderTitle(getString(R.string.context_header_phone));
+                menu.add(0, ContactActions.COPY_PHONE_CONTACT.ordinal(), 0, getString(R.string.context_entry_copy_to_sim));
             }
         });
         // if short-clicking just display details for this contact
@@ -233,9 +254,9 @@ public class ManageContactsActivity extends TabActivity {
         simView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-                menu.setHeaderTitle("Modify SIM Contact");
-                menu.add(0, ContactActions.COPY_SIM_CONTACT.ordinal(), 0, "Copy to Phone");
-                menu.add(0, ContactActions.DELETE_SIM_CONTACT.ordinal(), 0, "Delete from SIM");
+                menu.setHeaderTitle(getString(R.string.context_header_sim));
+                menu.add(0, ContactActions.COPY_SIM_CONTACT.ordinal(), 0, getString(R.string.context_entry_copy_to_phone));
+                menu.add(0, ContactActions.DELETE_SIM_CONTACT.ordinal(), 0, getString(R.string.context_entry_delete_from_sim));
             }
         });
         // if short-clicking just display details for this contact
@@ -256,6 +277,12 @@ public class ManageContactsActivity extends TabActivity {
         });
     }
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        return true;
+    }
+    
     private ArrayList<Contact> retrievePhoneContacts() {
         // get these columns from the content provider
         final String[] phoneProjection  = new String[] { //
