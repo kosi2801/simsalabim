@@ -1,6 +1,6 @@
 package at.fhj.swd07.simsalabim;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.app.*;
 import android.content.DialogInterface;
@@ -21,8 +21,8 @@ public class ManageContactsActivity extends TabActivity {
     private TabHost mTabHost;
     private ListView phoneView;
     private ListView simView;
-    private ArrayList<Contact> phoneContacts;
-    private ArrayList<Contact> simContacts;
+    private List<Contact> phoneContacts;
+    private List<Contact> simContacts;
     
     private SimUtil simUtil;
     private PhoneUtil phoneUtil;
@@ -91,8 +91,14 @@ public class ManageContactsActivity extends TabActivity {
                  // get selected contact from phoneView
                  contexedContact = (Contact) phoneView.getAdapter().getItem(menuInfo.position);
                  
-                 // create new instance for SIM insertion (must have empty id)
-                 Contact newSimContact = new Contact("", contexedContact.name, contexedContact.number);
+                 // convert to Contact suitable for storage on SIM
+                 Contact newSimContact = simUtil.convertToSimContact(contexedContact);
+                 
+                 // was conversion successful? could fail if SIM full and maxContactNameLength couldn't be detected
+                 if(newSimContact == null) {
+                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_conversion_failed), Toast.LENGTH_SHORT).show();
+                     return true; // true means, event has been handled
+                 }
                  
                  // check, if already present on SIM
                  if(simContacts.contains(newSimContact)) {
@@ -111,10 +117,8 @@ public class ManageContactsActivity extends TabActivity {
                      Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_stored) + " " + newSimRow.toString(), Toast.LENGTH_SHORT).show();
                  }
                  
-                 // TODO: reload contact from sim to get really stored info and add to simContacts list
-                  
                  // add it to the simContacts list
-                 simContacts.add(0, contexedContact);
+                 simContacts.add(0, newSimContact);
 
                  refreshListViews();
                  return true; // true means, event has been handled
@@ -174,13 +178,17 @@ public class ManageContactsActivity extends TabActivity {
                      
                      @Override
                     public void onClick(DialogInterface dialog, int which) {
-                         int count = simUtil.deleteContact(contact);
-                         
-                         // TODO: what to do when more than 1 match? 
-                         if(count != 1) {
-                             Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_x_contacts_removed) + " " + count, Toast.LENGTH_SHORT).show();
-                         } else {
+                         int status = simUtil.deleteContact(contact);
+
+                         // contact removed correctly
+                         if(status == 0) {
                              Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_removed), Toast.LENGTH_SHORT).show();
+                         } else if (status > 0) { // more than one match
+                             Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_x_contacts_existing) + " " + status, Toast.LENGTH_LONG).show();
+                             return;
+                         } else { // nothing removed
+                             Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_error_during_contact_removal), Toast.LENGTH_LONG).show();
+                             return;
                          }
                          
                          // remove from simContacts if successful
