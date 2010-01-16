@@ -27,9 +27,11 @@
     <string name="confirm_phone_contact_number_stored">Contact number stored on Phone.</string>
     
     <!-- Error messages -->
+    <string name="error_sim_contact_conversion_failed">Contact could not be converted to SIM format! Maybe SIM is full?</string>
     <string name="error_sim_contact_already_present">Already on SIM!</string>
     <string name="error_sim_contact_not_stored">Error storing on SIM!</string>
-    <string name="error_sim_x_contacts_removed">Removed more than 1 contact. Error!</string>
+    <string name="error_sim_error_during_contact_removal">Error during deletion of contact on SIM!</string>
+    <string name="error_sim_x_contacts_existing">Cannot identify exactly one contact on SIM to delete! Not deleted. Count: </string>
     <string name="error_phone_contact_already_present">Already on Phone!</string>
     <string name="error_phone_contact_not_stored">Error storing contact on Phone!</string>
     <string name="error_phone_number_not_stored">Error adding number to contact on Phone!</string>

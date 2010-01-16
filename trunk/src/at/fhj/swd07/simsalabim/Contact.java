@@ -42,19 +42,11 @@ public class Contact {
             return c.id.compareTo(id) == 0;
         
         // if SimNames not equal...
-        if(compareStrings(getSimName(), c.getSimName()) == false) {
+        if(compareStrings(name, c.name) == false) {
             return false;
         }
 
         // finally if numbers not equal...
         return compareStrings(number, c.number);
     }
-    
-    /** Returns a shortened Version of the name which better fits on the short SIM space
-     * 
-     * @return a shortened version of the name which better fits on the SIM card
-     */
-    public String getSimName() {
-        return (name != null)?name.trim():null;
-    }         
 }

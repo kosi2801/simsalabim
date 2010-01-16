@@ -6,7 +6,6 @@ import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.Contacts;
-import android.widget.Toast;
 
 public class PhoneUtil {
     private ContentResolver resolver;
