@@ -11,9 +11,10 @@
     <!-- Context menus -->
     <string name="context_header_phone">Modify Phone Contact</string>
     <string name="context_header_sim">Modify SIM Contact</string>
-    <string name="context_entry_copy_to_sim">Copy to SIM card</string>
-    <string name="context_entry_delete_from_sim">Delete from SIM</string>
     <string name="context_entry_copy_to_phone">Copy to phone</string>
+    <string name="context_entry_edit_on_phone">Edit</string>
+    <string name="context_entry_delete_from_sim">Delete from SIM</string>
+    <string name="context_entry_copy_to_sim">Copy to SIM card</string>
     
     <!-- Alerts -->
     <string name="are_you_sure">Are you sure?</string>

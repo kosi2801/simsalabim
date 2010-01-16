@@ -3,7 +3,7 @@ package at.fhj.swd07.simsalabim;
 import java.util.List;
 
 import android.app.*;
-import android.content.DialogInterface;
+import android.content.*;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.*;
@@ -31,6 +31,7 @@ public class ManageContactsActivity extends TabActivity {
     protected enum ContactActions {
         DELETE_SIM_CONTACT,
         COPY_SIM_CONTACT,
+        EDIT_PHONE_CONTACT,
         COPY_PHONE_CONTACT,
     }
 
@@ -87,127 +88,155 @@ public class ManageContactsActivity extends TabActivity {
         // at first, check if a context menu was selected...
         /* Switch on the ID of the item, to get what the user selected. */
         switch (ContactActions.values()[aItem.getItemId()]) {
-             case COPY_PHONE_CONTACT:
-                 // get selected contact from phoneView
-                 contexedContact = (Contact) phoneView.getAdapter().getItem(menuInfo.position);
-                 
-                 // convert to Contact suitable for storage on SIM
-                 Contact newSimContact = simUtil.convertToSimContact(contexedContact);
-                 
-                 // was conversion successful? could fail if SIM full and maxContactNameLength couldn't be detected
-                 if(newSimContact == null) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_conversion_failed), Toast.LENGTH_SHORT).show();
-                     return true; // true means, event has been handled
-                 }
-                 
-                 // check, if already present on SIM
-                 if(simContacts.contains(newSimContact)) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_already_present), Toast.LENGTH_SHORT).show();
-                     return true; // true means, event has been handled
-                 }
-                 
-                 // create contact on SIM card
-                 Uri newSimRow = simUtil.createContact(newSimContact);
-                 
-                 // output feedback
-                 if (newSimRow == null) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_not_stored), Toast.LENGTH_SHORT).show();
-                     return true; // true means, event has been handled
-                 } else {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_stored) + " " + newSimRow.toString(), Toast.LENGTH_SHORT).show();
-                 }
-                 
-                 // add it to the simContacts list
-                 simContacts.add(0, newSimContact);
+        case EDIT_PHONE_CONTACT:
+            // get selected contact from phoneView
+            contexedContact = (Contact) phoneView.getAdapter().getItem(menuInfo.position);
+            
+            Intent editContact = new Intent(Intent.ACTION_EDIT);
+            Uri contactUri = phoneUtil.retrieveContactUri(contexedContact);
+            editContact.setData(contactUri);
 
-                 refreshListViews();
-                 return true; // true means, event has been handled
-             case COPY_SIM_CONTACT:
-                 // get selected contact from simView
-                 contexedContact = (Contact) simView.getAdapter().getItem(menuInfo.position);
-                 
-                 // create new instance for Phone insertion (must have empty id)
-                 Contact newPhoneContact = new Contact("", contexedContact.name, contexedContact.number);
-                 
-                 // check, if already present on SIM
-                 if(phoneContacts.contains(newPhoneContact)) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_already_present), Toast.LENGTH_LONG).show();
-                     
-                     return true; // true means, event has been handled
-                 }
+            startActivityForResult(editContact, ContactActions.EDIT_PHONE_CONTACT.ordinal());
+            return true;
+        case COPY_PHONE_CONTACT:
+            // get selected contact from phoneView
+            contexedContact = (Contact) phoneView.getAdapter().getItem(menuInfo.position);
 
-                 // create contact on phone
-                 Uri newContactUri = phoneUtil.createContact(contexedContact);
-                 
-                 // if NULL returned, the contact could not be created
-                 if(newPhoneContact == null) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_not_stored), Toast.LENGTH_LONG).show();
-                     return true; // true means, event has been handled
-                 }
-                 
-                 // if contacts uri returned, there was an error with adding the number
-                 if(newContactUri.getPath().contains("people")) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_not_stored), Toast.LENGTH_LONG).show();
-                     return true; // true means, event has been handled
-                 }
-                 
-                 // if phone uri returned, everything went OK
-                 if(newContactUri.getPath().contains("phones")) {
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_phone_contact_number_stored) + " " + newContactUri.toString(), Toast.LENGTH_SHORT).show();
-                 } else {
-                     // some unknown error has happened
-                     Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_error) + " " + newContactUri.toString(), Toast.LENGTH_LONG).show();
-                     return true; // true means, event has been handled
-                 }
-                  
-                 // finally add it to the phoneContacts list
-                 phoneContacts.add(0, contexedContact);
+            // convert to Contact suitable for storage on SIM
+            Contact newSimContact = simUtil.convertToSimContact(contexedContact);
 
-                 refreshListViews();
-                 return true; /* true means: "we handled the event". */
-             case DELETE_SIM_CONTACT:
-                 // get selected contact from phoneView
-                 contexedContact = (Contact) simView.getAdapter().getItem(menuInfo.position);
-                 
-                 // make "Are you sure?"-Dialog handler
-                 class DeleteHandler implements DialogInterface.OnClickListener {
-                     private Contact contact;
-                     public DeleteHandler(Contact contact) {
-                         this.contact = contact;
+            // was conversion successful? could fail if SIM full and
+            // maxContactNameLength couldn't be detected
+            if (newSimContact == null) {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_conversion_failed), Toast.LENGTH_SHORT).show();
+                return true; // true means, event has been handled
+            }
+
+            // check, if already present on SIM
+            if (simContacts.contains(newSimContact)) {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_already_present), Toast.LENGTH_SHORT).show();
+                return true; // true means, event has been handled
+            }
+
+            // create contact on SIM card
+            Uri newSimRow = simUtil.createContact(newSimContact);
+
+            // output feedback
+            if (newSimRow == null) {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_contact_not_stored), Toast.LENGTH_SHORT).show();
+                return true; // true means, event has been handled
+            } else {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_stored) + " " + newSimRow.toString(), Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            // add it to the simContacts list
+            simContacts.add(0, newSimContact);
+
+            refreshListViews();
+            return true; // true means, event has been handled
+        case COPY_SIM_CONTACT:
+            // get selected contact from simView
+            contexedContact = (Contact) simView.getAdapter().getItem(menuInfo.position);
+
+            // create new instance for Phone insertion (must have empty id)
+            Contact newPhoneContact = new Contact("", contexedContact.name, contexedContact.number);
+
+            // check, if already present on SIM
+            if (phoneContacts.contains(newPhoneContact)) {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_already_present), Toast.LENGTH_LONG).show();
+
+                return true; // true means, event has been handled
+            }
+
+            // create contact on phone
+            Uri newContactUri = phoneUtil.createContact(contexedContact);
+
+            // if NULL returned, the contact could not be created
+            if (newPhoneContact == null) {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_contact_not_stored), Toast.LENGTH_LONG).show();
+                return true; // true means, event has been handled
+            }
+
+            // if contacts uri returned, there was an error with adding the
+            // number
+            if (newContactUri.getPath().contains("people")) {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_not_stored), Toast.LENGTH_LONG).show();
+                return true; // true means, event has been handled
+            }
+
+            // if phone uri returned, everything went OK
+            if (newContactUri.getPath().contains("phones")) {
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_phone_contact_number_stored) + " " + newContactUri.toString(),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // some unknown error has happened
+                Toast.makeText(ManageContactsActivity.this, getString(R.string.error_phone_number_error) + " " + newContactUri.toString(), Toast.LENGTH_LONG)
+                        .show();
+                return true; // true means, event has been handled
+            }
+
+            // finally add it to the phoneContacts list
+            newPhoneContact.id = newContactUri.getLastPathSegment();
+            phoneContacts.add(0, newPhoneContact);
+
+            refreshListViews();
+            return true; /* true means: "we handled the event". */
+        case DELETE_SIM_CONTACT:
+            // get selected contact from phoneView
+            contexedContact = (Contact) simView.getAdapter().getItem(menuInfo.position);
+
+            // make "Are you sure?"-Dialog handler
+            class DeleteHandler implements DialogInterface.OnClickListener {
+                private Contact contact;
+
+                public DeleteHandler(Contact contact) {
+                    this.contact = contact;
+                }
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    int status = simUtil.deleteContact(contact);
+
+                    // contact removed correctly
+                    if (status == 0) {
+                        Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_removed), Toast.LENGTH_SHORT).show();
+                    } else if (status > 0) { // more than one match
+                        Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_x_contacts_existing) + " " + status, Toast.LENGTH_LONG).show();
+                        return;
+                    } else { // nothing removed
+                        Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_error_during_contact_removal), Toast.LENGTH_LONG).show();
+                        return;
                     }
-                     
-                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                         int status = simUtil.deleteContact(contact);
 
-                         // contact removed correctly
-                         if(status == 0) {
-                             Toast.makeText(ManageContactsActivity.this, getString(R.string.confirm_sim_contact_removed), Toast.LENGTH_SHORT).show();
-                         } else if (status > 0) { // more than one match
-                             Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_x_contacts_existing) + " " + status, Toast.LENGTH_LONG).show();
-                             return;
-                         } else { // nothing removed
-                             Toast.makeText(ManageContactsActivity.this, getString(R.string.error_sim_error_during_contact_removal), Toast.LENGTH_LONG).show();
-                             return;
-                         }
-                         
-                         // remove from simContacts if successful
-                         simContacts.remove(contact);
-                         refreshListViews();
-                    }
-                 }
-                 
-                 // and display the dialog
-                 new AlertDialog.Builder(this) //
-                 .setCancelable(false) //
-                 .setMessage(getString(R.string.are_you_sure)) //
-                 .setPositiveButton(getString(R.string.yes), new DeleteHandler(contexedContact)) //
-                 .setNegativeButton(getString(R.string.no), null) //
-                 .show();
-                 
-                 return true;
-             default:
-                 return super.onContextItemSelected(aItem);
+                    // remove from simContacts if successful
+                    simContacts.remove(contact);
+                    refreshListViews();
+                }
+            }
+
+            // and display the dialog
+            new AlertDialog.Builder(this) //
+                    .setCancelable(false) //
+                    .setMessage(getString(R.string.are_you_sure)) //
+                    .setPositiveButton(getString(R.string.yes), new DeleteHandler(contexedContact)) //
+                    .setNegativeButton(getString(R.string.no), null) //
+                    .show();
+
+            return true;
+        default:
+            return super.onContextItemSelected(aItem);
+        }
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // if this was called after editing a phone contact, refresh the view
+        if(requestCode == ContactActions.EDIT_PHONE_CONTACT.ordinal()) {
+            phoneContacts = phoneUtil.retrievePhoneContacts();
+            refreshListViews();
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
     
@@ -240,6 +269,7 @@ public class ManageContactsActivity extends TabActivity {
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
                 menu.setHeaderTitle(getString(R.string.context_header_phone));
                 menu.add(0, ContactActions.COPY_PHONE_CONTACT.ordinal(), 0, getString(R.string.context_entry_copy_to_sim));
+                menu.add(0, ContactActions.EDIT_PHONE_CONTACT.ordinal(), 0, getString(R.string.context_entry_edit_on_phone));
             }
         });
         // if short-clicking just display details for this contact
@@ -289,4 +319,5 @@ public class ManageContactsActivity extends TabActivity {
         inflater.inflate(R.menu.options_menu, menu);
         return true;
     }
+    
 }
