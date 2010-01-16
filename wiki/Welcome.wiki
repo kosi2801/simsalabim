@@ -1,13 +1,18 @@
-#summary One-sentence summary of this page.
+#summary Welcome page
 
-= Introduction =
+= Welcome =
 
-Add your content here.
+*SIMsalabim* is a tool to assist with the management of contacts on the SIM cards of mobile phones running Google Android. 
+Android, at least as of version 1.6, does not offer the possibility to manage the contacts on your SIM card. This tool
+adds this missing functionality. 
 
+SIMsalabim allows following operations on your SIM card :
+  * view the contacts
+  * copy contacts to the phone contacts list
+  * copy contacts from the phone contacts list
+  * delete contacts   
 
-= Details =
+= Usage =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Upon startup of SIMsalabim you are presented with tabs containing the contact lists from your phone and your SIM card.
+Short press an entry to show details of it, long press to perform the modification activities. 
