@@ -16,3 +16,13 @@ SIMsalabim allows following operations on your SIM card :
 
 Upon startup of SIMsalabim you are presented with tabs containing the contact lists from your phone and your SIM card.
 Short press an entry to show details of it, long press to perform the modification activities. 
+
+= Planned improvements =
+
+  * ~~edit phone contacts~~ finished, will be in next version
+  * provide "letter-slider" during scrolling, like in builtin contacts manager
+  * more testing with difficult SIM conditions, like being full etc.
+  * don't crash, if there is a problem accessing the SIM at startup
+  * far future: maybe allow similar management of SMS on SIM card, if Android allows this
+  
+  
