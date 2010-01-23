@@ -58,7 +58,13 @@ public class ManageContactsActivity extends TabActivity {
 
         initListViews();
     }
-    
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -88,16 +94,6 @@ public class ManageContactsActivity extends TabActivity {
         // at first, check if a context menu was selected...
         /* Switch on the ID of the item, to get what the user selected. */
         switch (ContactActions.values()[aItem.getItemId()]) {
-        case EDIT_PHONE_CONTACT:
-            // get selected contact from phoneView
-            contexedContact = (Contact) phoneView.getAdapter().getItem(menuInfo.position);
-            
-            Intent editContact = new Intent(Intent.ACTION_EDIT);
-            Uri contactUri = phoneUtil.retrieveContactUri(contexedContact);
-            editContact.setData(contactUri);
-
-            startActivityForResult(editContact, ContactActions.EDIT_PHONE_CONTACT.ordinal());
-            return true;
         case COPY_PHONE_CONTACT:
             // get selected contact from phoneView
             contexedContact = (Contact) phoneView.getAdapter().getItem(menuInfo.position);
@@ -240,20 +236,25 @@ public class ManageContactsActivity extends TabActivity {
         }
     }
     
+    /**
+     * refreshes the ListViews using the current values stored in phoneContacts and simContacts
+     */
     private void refreshListViews() {
         // fill ListView for phone contacts
         {
-            ArrayAdapter<Contact> phoneContactsAdapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, phoneContacts);
-            phoneView.setAdapter(phoneContactsAdapter);
+            phoneView.setAdapter(new ContactRowAdapter(phoneContacts));
         }
         
         // fill ListView for SIM contacts
         {
-            ArrayAdapter<Contact> simContactsAdapter = new ArrayAdapter<Contact>(this, android.R.layout.simple_list_item_1, simContacts);
-            simView.setAdapter(simContactsAdapter);
+            simView.setAdapter(new ContactRowAdapter(simContacts));
         }
     }
 
+    /**
+     * initializes the Phone and SIM ListViews by reading the phoneContacts and simContacts, setting up
+     * the ListViews and adding all required handlers to them 
+     */
     private void initListViews() {
         // retrieve data for display
         phoneContacts = phoneUtil.retrievePhoneContacts();
@@ -269,23 +270,21 @@ public class ManageContactsActivity extends TabActivity {
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
                 menu.setHeaderTitle(getString(R.string.context_header_phone));
                 menu.add(0, ContactActions.COPY_PHONE_CONTACT.ordinal(), 0, getString(R.string.context_entry_copy_to_sim));
-                menu.add(0, ContactActions.EDIT_PHONE_CONTACT.ordinal(), 0, getString(R.string.context_entry_edit_on_phone));
             }
         });
-        // if short-clicking just display details for this contact
+        // if short-clicking start native contact editor
         phoneView.setOnItemClickListener(new OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                       long arg3) {
                 Contact itemAtPosition = (Contact)arg0.getItemAtPosition(arg2);
                 
-                new AlertDialog.Builder(ManageContactsActivity.this) //
-                .setMessage( //
-                        itemAtPosition.name + "\n" + //
-                        itemAtPosition.number) //
-                .setPositiveButton("Close", null) //
-                .show();
-                 
+                Intent editContact = new Intent(Intent.ACTION_EDIT);
+                Uri contactUri = phoneUtil.retrieveContactUri(itemAtPosition);
+                editContact.setData(contactUri);
+
+                // start editor, refresh of listviews is handled in onActivityResult()
+                startActivityForResult(editContact, ContactActions.EDIT_PHONE_CONTACT.ordinal());                
             }
         });
         simView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
@@ -296,28 +295,48 @@ public class ManageContactsActivity extends TabActivity {
                 menu.add(0, ContactActions.DELETE_SIM_CONTACT.ordinal(), 0, getString(R.string.context_entry_delete_from_sim));
             }
         });
-        // if short-clicking just display details for this contact
-        simView.setOnItemClickListener(new OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-                      long arg3) {
-                Contact itemAtPosition = (Contact)arg0.getItemAtPosition(arg2);
-                
-                new AlertDialog.Builder(ManageContactsActivity.this) //
-                .setMessage( //
-                        itemAtPosition.name + "\n" + //
-                        itemAtPosition.number) //
-                .setPositiveButton("Close", null) //
-                .show();
-                 
-            }
-        });
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu, menu);
-        return true;
-    }
-    
+    /**
+     * Custom adapter which displays the contacts name and number in the listview
+     */
+    class ContactRowAdapter extends BaseAdapter {
+        List<Contact> contacts;
+        protected LayoutInflater inflater;
+        
+        public ContactRowAdapter(List<Contact> contacts) {
+            super();
+            this.contacts = contacts;
+            this.inflater = getLayoutInflater();
+        }
+        
+        public int getCount() {
+            return contacts.size();
+        }
+        public long getItemId(int position) {
+            return position;
+        }
+        public Object getItem(int position) {
+            return contacts.get(position);
+        }
+        
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if(convertView == null) {
+                convertView = inflater.inflate(android.R.layout.simple_list_item_2, parent, false);
+            }
+            
+            try{
+                Contact contact = (Contact)this.getItem(position);
+                
+                ((TextView)convertView.findViewById(android.R.id.text1)).setText(contact.name);
+                ((TextView)convertView.findViewById(android.R.id.text2)).setText(contact.number);
+            } catch(Exception e) {
+                e.printStackTrace();
+                ((TextView)convertView.findViewById(android.R.id.text1)).setText("");
+                ((TextView)convertView.findViewById(android.R.id.text2)).setText("");
+            }
+            
+            return convertView;
+        }
+    }    
 }
