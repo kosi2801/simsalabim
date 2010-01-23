@@ -13,10 +13,15 @@ SIMsalabim allows following operations on your SIM card :
 
 = Usage =
 Upon startup of SIMsalabim you are presented with tabs containing the contact lists from your phone and your SIM card.
-Short press an entry to show details of it, long press to perform the modification activities. 
+On the phone tab you can click an item to launch the Android contacts editor.
+If you long-press an entry on the phone and sim tab the context menu for modifying the entries is displayed.   
 
 = Screenshots =
-http://simsalabim.googlecode.com/svn/trunk/website/PhoneTab.png http://simsalabim.googlecode.com/svn/trunk/website/PhoneTabMenu.png http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.googlecode.com/svn/trunk/website/SimTabMenu.png
+The phone tab and its context menu. 
+http://simsalabim.googlecode.com/svn/trunk/website/PhoneTab.png http://simsalabim.googlecode.com/svn/trunk/website/PhoneTabMenu.png 
+
+The sim tab and its context menu.
+http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.googlecode.com/svn/trunk/website/SimTabMenu.png
 
 = Planned improvements =
   * ~~edit phone contacts~~ finished, will be in next version  
