@@ -18,9 +18,11 @@ If you long-press an entry on the phone and sim tab the context menu for modifyi
 
 = Screenshots =
 The phone tab and its context menu. 
+
 http://simsalabim.googlecode.com/svn/trunk/website/PhoneTab.png http://simsalabim.googlecode.com/svn/trunk/website/PhoneTabMenu.png 
 
 The sim tab and its context menu.
+
 http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.googlecode.com/svn/trunk/website/SimTabMenu.png
 
 = Planned improvements =
