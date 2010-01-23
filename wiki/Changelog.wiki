@@ -1,0 +1,11 @@
+#summary Changelog
+
+= Changes =
+
+== 20100123 ==
+  * UI improvements: numbers are now directly displayed in the contact lists
+  * launch Android contact editor if clicking on phone contact
+  * catch some errors when retrieving SIM contacts
+
+== 20100116 ==
+  * first public preview version

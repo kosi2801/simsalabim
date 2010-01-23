@@ -26,7 +26,6 @@ The sim tab and its context menu.
 http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.googlecode.com/svn/trunk/website/SimTabMenu.png
 
 = Planned improvements =
-  * ~~edit phone contacts~~ finished, will be in next version  
   * don't crash, if there is a problem accessing the SIM at startup
   * add debug-activity to display SIM data and statistics
   * provide "letter-slider" during scrolling, like in builtin contacts manager
