@@ -16,7 +16,7 @@ Upon startup of SIMsalabim you are presented with tabs containing the contact li
 Short press an entry to show details of it, long press to perform the modification activities. 
 
 = Screenshots =
-http://code.google.com/p/simsalabim/wiki/PhoneTab.png http://code.google.com/p/simsalabim/wiki/PhoneTabMenu.png http://code.google.com/p/simsalabim/wiki/SimTab.png http://code.google.com/p/simsalabim/wiki/SimTabMenu.png
+http://simsalabim.googlecode.com/svn/trunk/website/PhoneTab.png http://simsalabim.googlecode.com/svn/trunk/website/PhoneTabMenu.png http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.googlecode.com/svn/trunk/website/SimTabMenu.png
 
 = Planned improvements =
   * ~~edit phone contacts~~ finished, will be in next version  
