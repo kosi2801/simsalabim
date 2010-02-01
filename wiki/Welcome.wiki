@@ -26,7 +26,9 @@ The sim tab and its context menu.
 http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.googlecode.com/svn/trunk/website/SimTabMenu.png
 
 = Planned improvements =
-  * don't crash, if there is a problem accessing the SIM at startup
+  * don't crash, if there is a problem accessing the SIM at startup (eg. on Milestone)
+  * add support for different types of numbers (private, fax, etc.)
+  * add edit-functionality for contacts/numbers on SIM
   * add debug-activity to display SIM data and statistics
   * provide "letter-slider" during scrolling, like in builtin contacts manager
   * more testing with difficult SIM conditions, like being full etc.
