@@ -1,7 +1,6 @@
 package at.fhj.swd07.simsalabim;
 
 import java.util.List;
-
 import android.app.*;
 import android.content.*;
 import android.net.Uri;
@@ -11,6 +10,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.*;
 import android.widget.AdapterView.*;
+import android.util.Log;
 
 /*
  * Listhandling inspiriert von: http://www.anddev.org/creating_a_contextmenu_on_a_listview-t2438.html
@@ -18,6 +18,8 @@ import android.widget.AdapterView.*;
 
 public class ManageContactsActivity extends TabActivity {
 
+    private static final String TAG = ManageContactsActivity.class.getSimpleName();
+    
     private TabHost mTabHost;
     private ListView phoneView;
     private ListView simView;
@@ -37,6 +39,11 @@ public class ManageContactsActivity extends TabActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "onCreate(Bundle)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " Bundle("+savedInstanceState+")");
+        
         super.onCreate(savedInstanceState);
         
         simUtil = new SimUtil(getContentResolver());
@@ -60,6 +67,11 @@ public class ManageContactsActivity extends TabActivity {
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "onCreateOptionsMenu(Menu)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " Menu("+menu+")");
+        
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
         return true;
@@ -67,6 +79,11 @@ public class ManageContactsActivity extends TabActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "onOptionsItemSelected(MenuItem)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " MenuItem("+item+")");
+        
         switch (item.getItemId()) {
         case R.id.about:
             // and display the dialog
@@ -86,6 +103,11 @@ public class ManageContactsActivity extends TabActivity {
     
     @Override
     public boolean onContextItemSelected(MenuItem aItem) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "onContextItemSelected(MenuItem)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " MenuItem("+aItem+")");
+        
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) aItem.getMenuInfo();
         
         // holds the contact on which the context menu was called 
@@ -184,14 +206,25 @@ public class ManageContactsActivity extends TabActivity {
 
             // make "Are you sure?"-Dialog handler
             class DeleteHandler implements DialogInterface.OnClickListener {
+                final String TAG2 = TAG+" - " + DeleteHandler.class.getSimpleName();
                 private Contact contact;
 
                 public DeleteHandler(Contact contact) {
+                    if(Log.isLoggable(TAG, Log.DEBUG))
+                        Log.d(TAG2, "DeleteHandler(Contact)");
+                    if(Log.isLoggable(TAG, Log.VERBOSE))
+                        Log.v(TAG2, " Contact("+contact+")");
+                    
                     this.contact = contact;
                 }
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    if(Log.isLoggable(TAG, Log.DEBUG))
+                        Log.d(TAG2, "onClick(DialogInterface, int)");
+                    if(Log.isLoggable(TAG, Log.VERBOSE))
+                        Log.v(TAG2, " DialogInterface("+dialog+"), int("+which+")");
+                    
                     int status = simUtil.deleteContact(contact);
 
                     // contact removed correctly
@@ -227,6 +260,11 @@ public class ManageContactsActivity extends TabActivity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "initListViews(int, int, Intent)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " int("+requestCode+"), int("+resultCode+"), Intent("+data+")");
+        
         // if this was called after editing a phone contact, refresh the view
         if(requestCode == ContactActions.EDIT_PHONE_CONTACT.ordinal()) {
             phoneContacts = phoneUtil.retrievePhoneContacts();
@@ -240,6 +278,9 @@ public class ManageContactsActivity extends TabActivity {
      * refreshes the ListViews using the current values stored in phoneContacts and simContacts
      */
     private void refreshListViews() {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "refreshListViews()");
+        
         // fill ListView for phone contacts
         {
             phoneView.setAdapter(new ContactRowAdapter(phoneContacts));
@@ -256,6 +297,9 @@ public class ManageContactsActivity extends TabActivity {
      * the ListViews and adding all required handlers to them 
      */
     private void initListViews() {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "initListViews()");
+        
         // retrieve data for display
         phoneContacts = phoneUtil.retrievePhoneContacts();
         simContacts = simUtil.retrieveSIMContacts(); 
@@ -266,17 +310,29 @@ public class ManageContactsActivity extends TabActivity {
         // Set up listeners for Context-Menus on ListViews
         // if long-clicking, display a context-menu with further actions
         phoneView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+            final String TAG2 = TAG+" - phoneView - " + OnCreateContextMenuListener.class.getSimpleName();
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+                if(Log.isLoggable(TAG, Log.DEBUG))
+                    Log.d(TAG2, "onCreateContextMenu(ContextMenu, View, ContextMenuInfo)");
+                if(Log.isLoggable(TAG, Log.VERBOSE))
+                    Log.v(TAG2, " ContextMenu("+menu+"), View("+v+"), ContextMenuInfo("+menuInfo+")");
+                
                 menu.setHeaderTitle(getString(R.string.context_header_phone));
                 menu.add(0, ContactActions.COPY_PHONE_CONTACT.ordinal(), 0, getString(R.string.context_entry_copy_to_sim));
             }
         });
         // if short-clicking start native contact editor
         phoneView.setOnItemClickListener(new OnItemClickListener(){
+            final String TAG2 = TAG+" - phoneView - " + OnItemClickListener.class.getSimpleName();
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                       long arg3) {
+                if(Log.isLoggable(TAG, Log.DEBUG))
+                    Log.d(TAG2, "onItemClick(AdapterView, View, int, long)");
+                if(Log.isLoggable(TAG, Log.VERBOSE))
+                    Log.v(TAG2, " AdapterView("+arg0+"), View("+arg1+"), int("+arg2+"), long("+arg3+")");
+                
                 Contact itemAtPosition = (Contact)arg0.getItemAtPosition(arg2);
                 
                 Intent editContact = new Intent(Intent.ACTION_EDIT);
@@ -288,8 +344,14 @@ public class ManageContactsActivity extends TabActivity {
             }
         });
         simView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+            final String TAG2 = TAG+" - simView - " + OnCreateContextMenuListener.class.getSimpleName();
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+                if(Log.isLoggable(TAG, Log.DEBUG))
+                    Log.d(TAG2, "onCreateContextMenu()");
+                if(Log.isLoggable(TAG, Log.VERBOSE))
+                    Log.v(TAG2, " ContextMenu("+menu+"), View("+v+"), ContextMenuInfo("+menuInfo+")");
+                
                 menu.setHeaderTitle(getString(R.string.context_header_sim));
                 menu.add(0, ContactActions.COPY_SIM_CONTACT.ordinal(), 0, getString(R.string.context_entry_copy_to_phone));
                 menu.add(0, ContactActions.DELETE_SIM_CONTACT.ordinal(), 0, getString(R.string.context_entry_delete_from_sim));
