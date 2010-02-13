@@ -5,8 +5,11 @@ import java.util.*;
 import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 public class SimUtil {
+    private static final String TAG = SimUtil.class.getSimpleName();
+
     private ContentResolver resolver;
     private Uri simUri;
 
@@ -15,6 +18,11 @@ public class SimUtil {
                                           // detected upon load of class
 
     SimUtil(ContentResolver resolver) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "SimUtil(ContentResolver)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " Contentresolver("+resolver+")");
+        
         this.resolver = resolver;
 
         // URI for SIM card is different on Android 1.5 and 1.6
@@ -29,6 +37,9 @@ public class SimUtil {
      * @return Uri of the SIM card on this system
      */
     private String detectSimUri() {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "detectSimUri()");
+        
         Uri uri15 = Uri.parse("content://sim/adn/"); // URI of Sim card on
                                                      // Android 1.5
         // Uri uri16 = Uri.parse("content://icc/adn/"); // URI of Sim card on
@@ -52,6 +63,9 @@ public class SimUtil {
      * @return Length of the longest contact name the SIM card accepts
      */
     private Integer detectMaxContactNameLength() {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "detectMaxContactNameLength()");
+        
         String nameString = "sImSaLabiMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // 51 chars
         Integer currentMax = nameString.length();
 
@@ -83,6 +97,9 @@ public class SimUtil {
      * @return List containing Contact objects from the stored SIM information
      */
     public List<Contact> retrieveSIMContacts() {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "retrieveSIMContacts()");
+        
         // get these columns
         final String[] simProjection = new String[] { //
         android.provider.Contacts.PeopleColumns.NAME, //
@@ -123,6 +140,11 @@ public class SimUtil {
      *         the contact name was too long for the SIM).
      */
     public Uri createContact(Contact newSimContact) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "createContact(Contact)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " Contact("+newSimContact+")");
+        
         // add it on the SIM card
         ContentValues newSimValues = new ContentValues();
         newSimValues.put("tag", newSimContact.name);
@@ -146,6 +168,11 @@ public class SimUtil {
      *         multiple contacts which were identified.
      */
     public int deleteContact(Contact contact) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "deleteContact(Contact)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " Contact("+contact+")");
+        
         // check, that only one contact with this identifiers existing
         // TODO: currently this always returns ALL contacts on the SIM. Is this
         // a bug in the content provider?
@@ -161,6 +188,7 @@ public class SimUtil {
         // TODO: Can this ever return >1 after check above?
         int deleteCount = resolver.delete(simUri, "tag='" + contact.name + "' AND number='" + contact.number + "'", null);
         if (deleteCount != 1) {
+            Log.e(TAG, " deleteCount="+deleteCount+" on deletion \"tag='" + contact.name + "' AND number='" + contact.number + "'\"");
             return -1;
         }
 
@@ -177,12 +205,18 @@ public class SimUtil {
      *         cards limits or null if there was a problem detecting the limits
      */
     public Contact convertToSimContact(Contact contact) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "convertToSimContact()");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " Contact("+contact+")");
+        
         // if no max length yet, try to detect once more
         if (maxContactNameLength == null) {
             maxContactNameLength = detectMaxContactNameLength();
 
             // if still null, give up
             if (maxContactNameLength == null) {
+                Log.w(TAG, " unable to detect maximum length of SIM contact name");
                 return null;
             }
         }

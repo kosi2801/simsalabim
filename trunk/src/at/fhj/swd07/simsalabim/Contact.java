@@ -1,22 +1,28 @@
 package at.fhj.swd07.simsalabim;
 
+import android.util.Log;
+
 /** small class which represents a contact on any view */
 public class Contact {
+    private static final String TAG = Contact.class.getSimpleName();
+
     protected String name;
     protected String number;
     protected String id;
     
     protected Contact(String id, String name, String number) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "Contact()["+id+"] '"+name+"': "+number);
         this.id = id;
         this.name = name;
         this.number = number;
     }
 
-    /** The ListView is going to display the toString() return-value! 
+    /**  
      * @return the string for the Listview */
     @Override
-    public String toString() {
-         return name;
+    public String toString() {        
+         return "["+ id + "]'" + name +"': " + number;
     }
 
     // null-safe string compare

@@ -6,12 +6,19 @@ import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.*;
+import android.util.Log;
 
 public class PhoneUtil {
+    private static final String TAG = PhoneUtil.class.getSimpleName();
+    
     private ContentResolver resolver;
     
-    
     PhoneUtil(ContentResolver resolver) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "PhoneUtil(ContentResolver)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " ContentResolver("+resolver+")");
+        
         this.resolver = resolver;
     }
 
@@ -21,6 +28,9 @@ public class PhoneUtil {
      * @return List containing all Contact objects from the phones contact list
      */
     public ArrayList<Contact> retrievePhoneContacts() {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "retrievePhoneContacts()");
+        
         // get these columns from the content provider
         final String[] phoneProjection  = new String[] { //
                 android.provider.Contacts.PeopleColumns.NAME, //
@@ -54,6 +64,11 @@ public class PhoneUtil {
      * @return the Uri of the newly created contact
      */
     public Uri createContact(Contact newPhoneContact) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "createContact(Contact)");
+        if(Log.isLoggable(TAG, Log.VERBOSE))
+            Log.v(TAG, " Contact("+newPhoneContact+")");
+        
         // first, we have to create the contact
         ContentValues newPhoneValues = new ContentValues();
         newPhoneValues.put(Contacts.People.NAME, newPhoneContact.name);
@@ -82,6 +97,11 @@ public class PhoneUtil {
      * @return the Uri of the found contact or null if none found 
      */
     public Uri retrieveContactUri(Contact contact) {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "retrieveContactUri()");
+        if(Log.isLoggable(TAG, Log.VERBOSE))        
+            Log.v(TAG, " Contact("+contact+")");
+
         // try to resolve using the Contacts.Phones id
         if (contact.id != null) {
             Uri uri = ContentUris.withAppendedId(Contacts.Phones.CONTENT_URI, Long.valueOf(contact.id));
