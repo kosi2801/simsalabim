@@ -13,6 +13,7 @@ SIMsalabim allows following operations on your SIM card :
 
 = Usage =
 Upon startup of SIMsalabim you are presented with tabs containing the contact lists from your phone and your SIM card.
+Contacts are displayed several times if there are several numbers assigned to it. The number of each entry is displayed below the contact name.
 On the phone tab you can click an item to launch the Android contacts editor.
 If you long-press an entry on the phone and sim tab the context menu for modifying the entries is displayed.   
 
