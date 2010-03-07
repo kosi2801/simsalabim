@@ -2,6 +2,10 @@
 
 = Changes =
 
+== ? ==
+  * added internal logging
+  * added slider thumb in listviews
+
 == 20100123 ==
   * UI improvements: numbers are now directly displayed in the contact lists
   * launch Android contact editor if clicking on phone contact
