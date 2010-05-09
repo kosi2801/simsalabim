@@ -31,7 +31,7 @@ http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.
   * ~~add support for different types of numbers (private, fax, etc.)~~
   * add edit-functionality for contacts/numbers on SIM
   * add debug-activity to display SIM data and statistics
-  * provide "letter-slider" during scrolling, like in builtin contacts manager
+  * ~~provide "letter-slider" during scrolling, like in builtin contacts manager~~
   * more testing with difficult SIM conditions, like being full etc.
   * far future: maybe allow similar management of SMS on SIM card, if Android allows this
   

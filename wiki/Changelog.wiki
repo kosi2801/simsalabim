@@ -2,9 +2,10 @@
 
 = Changes =
 
-== ? ==
+== 20100509 ==
   * added internal logging
   * added slider thumb in listviews
+  * fixed [http://code.google.com/p/simsalabim/issues/detail?id=3 Issue #3]
 
 == 20100123 ==
   * UI improvements: numbers are now directly displayed in the contact lists
