@@ -46,9 +46,11 @@ public class ManageContactsActivity extends TabActivity {
         
         super.onCreate(savedInstanceState);
         
+        // initialize utility accessors for the two contact stores
         simUtil = new SimUtil(getContentResolver());
         phoneUtil = new PhoneUtil(getContentResolver());
         
+        // set up main UI
         setContentView(R.layout.main);
 
         // initialize access variables
@@ -151,7 +153,7 @@ public class ManageContactsActivity extends TabActivity {
             // add it to the simContacts list
             simContacts.add(0, newSimContact);
 
-            refreshListViews();
+            refreshSimListView();
             return true; // true means, event has been handled
         case COPY_SIM_CONTACT:
             // get selected contact from simView
@@ -198,7 +200,7 @@ public class ManageContactsActivity extends TabActivity {
             newPhoneContact.id = newContactUri.getLastPathSegment();
             phoneContacts.add(0, newPhoneContact);
 
-            refreshListViews();
+            refreshPhoneListView();
             return true; /* true means: "we handled the event". */
         case DELETE_SIM_CONTACT:
             // get selected contact from phoneView
@@ -240,7 +242,7 @@ public class ManageContactsActivity extends TabActivity {
 
                     // remove from simContacts if successful
                     simContacts.remove(contact);
-                    refreshListViews();
+                    refreshSimListView();
                 }
             }
 
@@ -268,28 +270,32 @@ public class ManageContactsActivity extends TabActivity {
         // if this was called after editing a phone contact, refresh the view
         if(requestCode == ContactActions.EDIT_PHONE_CONTACT.ordinal()) {
             phoneContacts = phoneUtil.retrievePhoneContacts();
-            refreshListViews();
+            refreshPhoneListView();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
     
     /**
-     * refreshes the ListViews using the current values stored in phoneContacts and simContacts
+     * refreshes the sim contacts ListViews using the current values stored in simContacts
      */
-    private void refreshListViews() {
+    private void refreshSimListView() {
         if(Log.isLoggable(TAG, Log.DEBUG))
-            Log.d(TAG, "refreshListViews()");
-        
-        // fill ListView for phone contacts
-        {
-            phoneView.setAdapter(new ContactRowAdapter(phoneContacts));
-        }
+            Log.d(TAG, "refreshSimListView()");
         
         // fill ListView for SIM contacts
-        {
-            simView.setAdapter(new ContactRowAdapter(simContacts));
-        }
+        simView.setAdapter(new ContactRowAdapter(simContacts));
+    }
+
+    /**
+     * refreshes the phone contacts ListView using the current values stored in phoneContacts
+     */
+    private void refreshPhoneListView() {
+        if(Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "refreshPhoneListView()");
+        
+        // fill ListView for phone contacts
+        phoneView.setAdapter(new ContactRowAdapter(phoneContacts));
     }
 
     /**
@@ -305,7 +311,8 @@ public class ManageContactsActivity extends TabActivity {
         simContacts = simUtil.retrieveSIMContacts(); 
         
         // set up contents of ListViews
-        refreshListViews();
+        refreshPhoneListView();
+        refreshSimListView();
         
         // Set up listeners for Context-Menus on ListViews
         // if long-clicking, display a context-menu with further actions
