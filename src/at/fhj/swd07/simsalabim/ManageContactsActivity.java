@@ -1,16 +1,17 @@
 package at.fhj.swd07.simsalabim;
 
 import java.util.List;
+
 import android.app.*;
 import android.content.*;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.*;
 import android.widget.AdapterView.*;
-import android.util.Log;
 
 /*
  * Listhandling inspiriert von: http://www.anddev.org/creating_a_contextmenu_on_a_listview-t2438.html
@@ -48,7 +49,7 @@ public class ManageContactsActivity extends TabActivity {
         
         // initialize utility accessors for the two contact stores
         simUtil = new SimUtil(getContentResolver());
-        phoneUtil = new PhoneUtil(getContentResolver());
+        phoneUtil = PhoneUtil.getInstance(getContentResolver());
         
         // set up main UI
         setContentView(R.layout.main);
@@ -342,8 +343,10 @@ public class ManageContactsActivity extends TabActivity {
                 
                 Contact itemAtPosition = (Contact)arg0.getItemAtPosition(arg2);
                 
-                Intent editContact = new Intent(Intent.ACTION_EDIT);
+                //Intent editContact = new Intent(Intent.ACTION_EDIT);
                 Uri contactUri = phoneUtil.retrieveContactUri(itemAtPosition);
+                Intent editContact = new Intent(Intent.ACTION_EDIT, contactUri);
+                
                 editContact.setData(contactUri);
 
                 // start editor, refresh of listviews is handled in onActivityResult()
