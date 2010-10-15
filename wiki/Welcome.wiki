@@ -2,7 +2,7 @@
 
 = Welcome =
 *SIMsalabim* is a tool to assist with the management of contacts on the SIM cards of mobile phones running Google Android. 
-Android, at least as of version 1.6, does not offer the possibility to manage the contacts on your SIM card. This tool
+Android does not offer a possibility to manage the contacts on your SIM card besides copying them to the phone. This tool
 adds this missing functionality. 
 
 SIMsalabim allows following operations on your SIM card :
@@ -34,5 +34,6 @@ http://simsalabim.googlecode.com/svn/trunk/website/SimTab.png http://simsalabim.
   * ~~provide "letter-slider" during scrolling, like in builtin contacts manager~~
   * more testing with difficult SIM conditions, like being full etc.
   * far future: maybe allow similar management of SMS on SIM card, if Android allows this
+  * ~~add support for Android 2.0+ ~~
   
   

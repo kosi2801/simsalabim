@@ -2,6 +2,9 @@
 
 = Changes =
 
+== 20101016 ==
+  * added support for ContactsContract API of Android 2.0+ (API Level 5), see [http://code.google.com/p/simsalabim/issues/detail?id=5 Issue #5]
+
 == 20100509 ==
   * added internal logging
   * added slider thumb in listviews
